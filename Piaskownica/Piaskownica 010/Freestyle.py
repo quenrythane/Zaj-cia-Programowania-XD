@@ -16,7 +16,7 @@ A. Strona www z rankingiem naj lepszych wg. was kome
 7. Zakłładka na stronie gdzie to wystawimy
 """
 
-
+ranking_commands_list = []
 def get_files_from_folder(folder_path: str) -> list:
     files_list = os.listdir(folder_path)
     filter_list = ['README.md', 'TWOJEIMIE_linux_hot_16_challenge.txt', 'TWOJEIMIE_linux_hot_16_challenge_freestyle.txt']  # files I want to exclude from files
@@ -46,3 +46,32 @@ def get_command_data(text_lines):
             description = ' '.join(text_lines[i+1].split()[1:]).strip()
             result.append((name, ranking, description))
     return result
+
+
+def append_data_to_comamnd_list(main_list, existing_commands, pack_list):
+    for pack in pack_list:  # ('sudo', 1, 'Dzięki tej komendzie możemy zostać adminami systemu i dostajemy wyższe uprawnienia.')
+        points = len(pack_list)+1-pack[1]
+
+        command = {
+            'name': '',  # str
+            'rank': 0,  # int
+            'rank_points': 0,  # int
+            'description': [],  # list of strs
+        }
+
+        if pack[0] in existing_commands:
+            for i in main_list:
+                if i['name'] == pack[0]:  # jeśli taka komenda już jest to tylko dodaj punkty
+                    i['rank_points'] += points
+
+
+
+        else:
+            existing_commands.append(pack[0])  # dodaj ją do existing list
+            command['name'] = pack[0]  # dodaj jądo listty komend
+            command['rank_points'] += points  # dodaj punkty
+            command['description'].append(pack[2])  # dodaj opis
+            main_list.append(command)
+
+
+
