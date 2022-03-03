@@ -1,5 +1,5 @@
-# from flask import Flask, render_template
 import os
+from string import whitespace
 
 """
 Cel:
@@ -17,44 +17,32 @@ A. Strona www z rankingiem naj lepszych wg. was kome
 """
 
 
-# app = Flask(__name__)
-
-# data structures
-ranking_commands_list = []
-command = {
-    'name':         None,   # str
-    'rank':         None,   # int
-    'rank_list':    [],     # list of ints
-    'description':  [],     # list of strs
-}
-
-# folders paths
-data_folder_path = r'C:\Users\Thane Art\PycharmProjects\.Kursy\Zajęcia Programowania XD\Piaskownica\data-folder'
-repo_folder_path = r'C:\Users\Thane Art\PycharmProjects\.Kursy\Zajęcia Programowania XD\Piaskownica\LinuxHot16Challenge-main'
-wasze_zwrotki_folder_path = r'C:\Users\Thane Art\PycharmProjects\.Kursy\Zajęcia Programowania XD\Piaskownica\LinuxHot16Challenge-main\wasze_zwrotki'
-wasze_zwrotki_freestyle_folder_path = r'C:\Users\Thane Art\PycharmProjects\.Kursy\Zajęcia Programowania XD\Piaskownica\LinuxHot16Challenge-main\wasze_zwrotki_freestyle'
-
-
-HERE = os.getcwd()  # C:\Users\Thane Art\PycharmProjects\.Kursy\Zajęcia Programowania XD\Piaskownica\Piaskownica 010
-
-def load_data_from_folder(folder_path):
+def get_files_from_folder(folder_path: str) -> list:
     files_list = os.listdir(folder_path)
     filter_list = ['README.md', 'TWOJEIMIE_linux_hot_16_challenge.txt', 'TWOJEIMIE_linux_hot_16_challenge_freestyle.txt']  # files I want to exclude from files
-
-    for file in files_list:
-        if file == 'Demetress_linux_hot_16_challenge':
-            break
-        if file in filter_list:
-            continue
-        print(file)
-        # file_path = f'{wasze_zwrotki_folder_path}\{file}'
-        file_path = os.path.join(wasze_zwrotki_folder_path, file)
-
-        with open(file_path, 'r', encoding='utf-8') as file_inside:
-            text_lines = file_inside.readlines()
-        print(text_lines)
+    return [file for file in files_list if file not in filter_list]
 
 
+def return_lines_from_file(path, file):
+    file_path = os.path.join(path, file)
 
-load_data_from_folder(wasze_zwrotki_folder_path)
+    with open(file_path, 'r', encoding='utf-8') as file_inside:
+        text_lines = file_inside.readlines()
 
+    try:
+        x = text_lines.index('#### ZPXD:\n')   # files end with "banner" so i find it and slice text_lines in this place
+        return [line.strip() for line in text_lines[:x] if line not in whitespace]
+    except:
+        return [line.strip() for line in text_lines[:] if line not in whitespace]
+
+
+def get_command_data(text_lines):
+    result = []
+    for i, line in enumerate(text_lines):
+        line = line.split()
+        if line[1][0].isdigit():
+            name = line[2].strip()
+            ranking = int(line[1][:-1])
+            description = ' '.join(text_lines[i+1].split()[1:]).strip()
+            result.append((name, ranking, description))
+    return result
